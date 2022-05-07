@@ -3,32 +3,36 @@
  * ID: 1225133
  */
 
+import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
 public class Client {
+    private String hostname;
+    private int port;
+    private String username;
 
-    public Client() {
-
+    public Client(String hostname, int port, String username) {
+        this.hostname = hostname;
+        this.port = port;
+        this.username = username;
     }
 
-    public void connect() throws RemoteException, NotBoundException {
-        IClientConnection client = new ClientConnection("Grant");
-        UnicastRemoteObject.exportObject(client, 0);
+    public void connect() throws RemoteException, NotBoundException, InterruptedException {
+        System.setProperty("java.rmi.server.hostname", hostname);
         Registry registry = LocateRegistry.getRegistry("localhost");
-
-        //Retrieve the stub/proxy for the remote math object from the registry
         IWhiteboard whiteboard = (IWhiteboard) registry.lookup("Whiteboard");
+        ClientCallbackInterface client = new ClientImplementation(hostname, port, username);
+        whiteboard.register(client);
 
-        //System.out.println(whiteboard.getUsernames());
-        whiteboard.sendMessage("Hello server!");
-        whiteboard.login(client);
+        Thread.sleep(20000);
+        List<ClientCallbackInterface> list = whiteboard.getClients();
 
-        while(true) {
-            System.out.println(whiteboard.messagesSent());
-        }
+        whiteboard.broadcastMessage("This is a broadcast message.");
+
+        whiteboard.unregister(client);
     }
 }
