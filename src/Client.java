@@ -3,7 +3,7 @@
  * ID: 1225133
  */
 
-import java.net.MalformedURLException;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -21,14 +21,13 @@ public class Client {
         this.username = username;
     }
 
-    public void connect() throws RemoteException, NotBoundException, InterruptedException {
+    public void connect() throws RemoteException, NotBoundException {
         System.setProperty("java.rmi.server.hostname", hostname);
         Registry registry = LocateRegistry.getRegistry("localhost");
         IWhiteboard whiteboard = (IWhiteboard) registry.lookup("Whiteboard");
         ClientCallbackInterface client = new ClientImplementation(hostname, port, username);
         whiteboard.register(client);
 
-        Thread.sleep(20000);
         List<ClientCallbackInterface> list = whiteboard.getClients();
 
         whiteboard.broadcastMessage("This is a broadcast message.");
