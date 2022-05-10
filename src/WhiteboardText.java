@@ -1,4 +1,6 @@
-public class WhiteboardText {
+import java.io.Serializable;
+
+public class WhiteboardText implements Serializable {
     private final String text;
     private final int x;
     private final int y;

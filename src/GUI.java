@@ -3,13 +3,16 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 
 public class GUI extends JFrame implements Runnable {
     private final Map<String, Color> colours;
+    private final IWhiteboard server;
 
     private JPanel guiPanel;
     private JTextField sendMessageField;
@@ -23,7 +26,9 @@ public class GUI extends JFrame implements Runnable {
     private JTextField textToDraw;
     private final WhiteboardCanvas canvas;
 
-    public GUI() {
+    public GUI(IWhiteboard server) {
+        this.server = server;
+
         colours = new HashMap<>();
         canvas = new WhiteboardCanvas();
 
@@ -34,12 +39,20 @@ public class GUI extends JFrame implements Runnable {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                if(shapeSelector.getSelectedItem() == "Text") {
-                    canvas.addDrawable(new Drawable(null, colours.get(colourSelector.getSelectedItem()),
-                            new WhiteboardText(textToDraw.getText(), e.getX(), e.getY())));
-                } else {
-                    canvas.addDrawable(new Drawable(getSelectedShape(e.getX() - 40, e.getY() - 30), colours.get(colourSelector.getSelectedItem()),
-                            null));
+                try {
+                    if(shapeSelector.getSelectedItem() == "Text") {
+                        server.sendDrawable(new Drawable(null, colours.get(colourSelector.getSelectedItem()),
+                                new WhiteboardText(textToDraw.getText(), e.getX(), e.getY())));
+                        /*canvas.addDrawable(new Drawable(null, colours.get(colourSelector.getSelectedItem()),
+                                new WhiteboardText(textToDraw.getText(), e.getX(), e.getY())));*/
+                    } else {
+                        server.sendDrawable(new Drawable(getSelectedShape(e.getX() - 40, e.getY() - 30), colours.get(colourSelector.getSelectedItem()),
+                                null));
+                        /*canvas.addDrawable(new Drawable(getSelectedShape(e.getX() - 40, e.getY() - 30), colours.get(colourSelector.getSelectedItem()),
+                                null)); */
+                    }
+                } catch(RemoteException ex) {
+                    ex.printStackTrace();
                 }
             }
         });
@@ -110,5 +123,13 @@ public class GUI extends JFrame implements Runnable {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setVisible(true);
+    }
+
+    public void addDrawableFromServer(IDrawable drawable) {
+        canvas.addDrawable(drawable);
+    }
+
+    public void syncDrawablesOnConnect(List<IDrawable> drawables) {
+        canvas.syncDrawables(drawables);
     }
 }

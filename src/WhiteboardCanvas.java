@@ -41,7 +41,7 @@ public class WhiteboardCanvas extends JPanel {
         repaint();
     }
 
-    public void updateDrawables(List<IDrawable> drawables) {
+    public void syncDrawables(List<IDrawable> drawables) {
         drawableList = drawables;
         repaint();
     }

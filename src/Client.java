@@ -1,37 +1,45 @@
-/*
- * Name: Grant Upson
- * ID: 1225133
- */
-
-
-import java.rmi.NotBoundException;
+import javax.swing.*;
+import java.awt.*;
+import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
-public class Client {
-    private String hostname;
-    private int port;
-    private String username;
+public class Client extends UnicastRemoteObject implements ClientCallbackInterface, Serializable {
+    private static final String KICKED_MESSAGE = "You have been kicked from the whiteboard server, terminating.";
+    private final String username;
+    private final GUI gui;
 
-    public Client(String hostname, int port, String username) {
-        this.hostname = hostname;
-        this.port = port;
+    public Client(String username, IWhiteboard server) throws RemoteException {
+        super();
         this.username = username;
+        EventQueue.invokeLater(gui = new GUI(server));
+        server.register(this);
     }
 
-    public void connect() throws RemoteException, NotBoundException {
-        System.setProperty("java.rmi.server.hostname", hostname);
-        Registry registry = LocateRegistry.getRegistry("localhost");
-        IWhiteboard whiteboard = (IWhiteboard) registry.lookup("Whiteboard");
-        ClientCallbackInterface client = new ClientImplementation(hostname, port, username);
-        whiteboard.register(client);
+    @Override
+    public void syncDrawables(List<IDrawable> drawables) throws RemoteException {
+        gui.syncDrawablesOnConnect(drawables);
+    }
 
-        List<ClientCallbackInterface> list = whiteboard.getClients();
+    @Override
+    public void sendDrawable(IDrawable drawable) throws RemoteException {
+        gui.addDrawableFromServer(drawable);
+    }
 
-        whiteboard.broadcastMessage("This is a broadcast message.");
+    @Override
+    public void kickFromWhiteboard() throws RemoteException {
+        JOptionPane.showMessageDialog(null, KICKED_MESSAGE);
+        System.exit(0);
+    }
 
-        whiteboard.unregister(client);
+    @Override
+    public String getUsername() throws RemoteException {
+        return username;
+    }
+
+    @Override
+    public void sendChatMessage(String message) throws RemoteException {
+        //TODO
     }
 }
