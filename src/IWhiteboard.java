@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 
 
 public interface IWhiteboard extends Remote {
-    void register(ClientCallbackInterface client) throws RemoteException;
+    boolean register(ClientCallbackInterface client) throws RemoteException;
     void unregister(ClientCallbackInterface client) throws RemoteException;
     void sendChatMessage(ClientCallbackInterface client, String message) throws RemoteException;
     void sendDrawable(IDrawable drawable) throws RemoteException;

@@ -12,6 +12,7 @@ import java.util.List;
 
 
 public class Client extends UnicastRemoteObject implements ClientCallbackInterface, Serializable {
+    private static final String USERNAME_ALREADY_EXISTS_MESSAGE = "A user with this username is already logged in.";
     private final String username;
     private final GUI gui;
 
@@ -19,7 +20,11 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
         super();
         this.username = username;
         EventQueue.invokeLater(gui = new GUI(server, this));
-        server.register(this);
+
+        if(!server.register(this)) {
+            JOptionPane.showMessageDialog(null, USERNAME_ALREADY_EXISTS_MESSAGE);
+            System.exit(0);
+        }
     }
 
     @Override
@@ -45,10 +50,18 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
     }
 
     @Override
-    public void onConnectionAccepted(List<IDrawable> drawables, List<String> users) throws RemoteException {
-        gui.syncDrawables(drawables);
-        gui.syncConnectedUsers(users);
+    public void onConnectionAccepted() throws RemoteException {
         gui.enableServerCommunication();
+    }
+
+    @Override
+    public void synchronizeCurrentUsers(List<String> users) throws RemoteException {
+        gui.syncConnectedUsers(users);
+    }
+
+    @Override
+    public void synchronizeDrawables(List<IDrawable> drawables) throws RemoteException {
+        gui.syncDrawables(drawables);
     }
 
     @Override

@@ -9,7 +9,9 @@ import java.util.List;
 
 
 public interface ClientCallbackInterface extends Remote {
-    void onConnectionAccepted(List<IDrawable> drawables, List<String> users) throws RemoteException;
+    void onConnectionAccepted() throws RemoteException;
+    void synchronizeCurrentUsers(List<String> users) throws RemoteException;
+    void synchronizeDrawables(List<IDrawable> drawables) throws RemoteException;
     String getUsername() throws RemoteException;
     void sendDrawable(IDrawable drawable) throws RemoteException;
     void sendChatMessage(String message) throws RemoteException;
