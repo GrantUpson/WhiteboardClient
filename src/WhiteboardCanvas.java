@@ -1,8 +1,14 @@
+/*
+ * Name: Grant Upson
+ * ID: 1225133
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class WhiteboardCanvas extends JPanel {
     private static final int WIDTH = 1000;
@@ -12,7 +18,7 @@ public class WhiteboardCanvas extends JPanel {
 
     public WhiteboardCanvas() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        drawableList = new ArrayList<IDrawable>();
+        drawableList = new ArrayList<>();
         this.setBackground(Color.WHITE);
     }
 
@@ -41,7 +47,7 @@ public class WhiteboardCanvas extends JPanel {
         repaint();
     }
 
-    public void syncDrawables(List<IDrawable> drawables) {
+    public void addDrawableList(List<IDrawable> drawables) {
         drawableList = drawables;
         repaint();
     }

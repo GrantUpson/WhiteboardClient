@@ -1,9 +1,14 @@
+/*
+ * Name: Grant Upson
+ * ID: 1225133
+ */
+
 import java.awt.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 
-public class Drawable extends UnicastRemoteObject implements IDrawable { //possibly extend unicast object?
+public class Drawable extends UnicastRemoteObject implements IDrawable {
     private final Shape shape;
     private final Color colour;
     private final WhiteboardText text;

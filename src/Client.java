@@ -1,3 +1,8 @@
+/*
+ * Name: Grant Upson
+ * ID: 1225133
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.Serializable;
@@ -5,21 +10,16 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
+
 public class Client extends UnicastRemoteObject implements ClientCallbackInterface, Serializable {
-    private static final String KICKED_MESSAGE = "You have been kicked from the whiteboard server, terminating.";
     private final String username;
     private final GUI gui;
 
     public Client(String username, IWhiteboard server) throws RemoteException {
         super();
         this.username = username;
-        EventQueue.invokeLater(gui = new GUI(server));
+        EventQueue.invokeLater(gui = new GUI(server, this));
         server.register(this);
-    }
-
-    @Override
-    public void syncDrawables(List<IDrawable> drawables) throws RemoteException {
-        gui.syncDrawablesOnConnect(drawables);
     }
 
     @Override
@@ -28,8 +28,8 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
     }
 
     @Override
-    public void kickFromWhiteboard() throws RemoteException {
-        JOptionPane.showMessageDialog(null, KICKED_MESSAGE);
+    public void onKick(String message) throws RemoteException {
+        JOptionPane.showMessageDialog(null, message);
         System.exit(0);
     }
 
@@ -39,7 +39,20 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
     }
 
     @Override
+    public void onServerShutdown(String message) throws RemoteException {
+        JOptionPane.showMessageDialog(null, message);
+        System.exit(0);
+    }
+
+    @Override
+    public void onConnectionAccepted(List<IDrawable> drawables, List<String> users) throws RemoteException {
+        gui.syncDrawables(drawables);
+        gui.syncConnectedUsers(users);
+        gui.enableServerCommunication();
+    }
+
+    @Override
     public void sendChatMessage(String message) throws RemoteException {
-        //TODO
+        gui.addChatMessage(message);
     }
 }
