@@ -11,12 +11,12 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 
-public class Client extends UnicastRemoteObject implements ClientCallbackInterface, Serializable {
+public class Client extends UnicastRemoteObject implements IClientCallback, Serializable {
     private static final String USERNAME_ALREADY_EXISTS_MESSAGE = "A user with this username is already logged in.";
     private final String username;
     private final GUI gui;
 
-    public Client(String username, IWhiteboard server) throws RemoteException {
+    public Client(String username, IWhiteboardServer server) throws RemoteException {
         super();
         this.username = username;
         EventQueue.invokeLater(gui = new GUI(server, this));

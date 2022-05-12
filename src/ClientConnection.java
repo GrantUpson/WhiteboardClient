@@ -29,8 +29,8 @@ public class ClientConnection {
         try {
             System.setProperty("java.rmi.server.hostname", hostname);
             Registry registry = LocateRegistry.getRegistry(RMIHostname, port);
-            IWhiteboard server = (IWhiteboard) registry.lookup("Whiteboard");
-            ClientCallbackInterface client = new Client(username, server);
+            IWhiteboardServer server = (IWhiteboardServer) registry.lookup("Whiteboard");
+            IClientCallback client = new Client(username, server);
         } catch(RemoteException | NotBoundException e) {
             JOptionPane.showMessageDialog(null, CONNECTION_ERROR);
             System.exit(0);

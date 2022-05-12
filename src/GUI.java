@@ -20,8 +20,8 @@ public class GUI extends JFrame implements Runnable {
     private static final int SHAPE_OFFSET = 35;
 
     private Map<String, Color> colours;
-    private final IWhiteboard server;
-    private final ClientCallbackInterface client;
+    private final IWhiteboardServer server;
+    private final IClientCallback client;
     private boolean connectionAccepted;
 
     private JPanel guiPanel;
@@ -39,7 +39,7 @@ public class GUI extends JFrame implements Runnable {
     private JScrollPane connectedUsersScrollbar;
     private final WhiteboardCanvas canvas;
 
-    public GUI(IWhiteboard server, ClientCallbackInterface client) {
+    public GUI(IWhiteboardServer server, IClientCallback client) {
         this.server = server;
         this.client = client;
         canvas = new WhiteboardCanvas();
