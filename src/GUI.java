@@ -116,7 +116,7 @@ public class GUI extends JFrame implements Runnable {
         canvas.addDrawable(drawable);
     }
 
-    public void syncDrawables(List<IDrawable> drawables) {
+    public void updateDrawables(List<IDrawable> drawables) {
         canvas.addDrawableList(drawables);
     }
 
@@ -124,7 +124,7 @@ public class GUI extends JFrame implements Runnable {
         chatTextArea.setText(chatTextArea.getText() + "\n" + message);
     }
 
-    public void syncConnectedUsers(List<String> users) {
+    public void updateConnectedUsers(List<String> users) {
         connectedUsers.setListData(users.toArray());
     }
 

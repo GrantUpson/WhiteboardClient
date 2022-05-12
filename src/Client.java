@@ -22,8 +22,7 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
         EventQueue.invokeLater(gui = new GUI(server, this));
 
         if(!server.register(this)) {
-            JOptionPane.showMessageDialog(null, USERNAME_ALREADY_EXISTS_MESSAGE);
-            System.exit(0);
+            displayAndExitApplication(USERNAME_ALREADY_EXISTS_MESSAGE);
         }
     }
 
@@ -34,8 +33,7 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
 
     @Override
     public void onKick(String message) throws RemoteException {
-        JOptionPane.showMessageDialog(null, message);
-        System.exit(0);
+        displayAndExitApplication(message);
     }
 
     @Override
@@ -45,8 +43,7 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
 
     @Override
     public void onServerShutdown(String message) throws RemoteException {
-        JOptionPane.showMessageDialog(null, message);
-        System.exit(0);
+        displayAndExitApplication(message);
     }
 
     @Override
@@ -56,16 +53,21 @@ public class Client extends UnicastRemoteObject implements ClientCallbackInterfa
 
     @Override
     public void synchronizeCurrentUsers(List<String> users) throws RemoteException {
-        gui.syncConnectedUsers(users);
+        gui.updateConnectedUsers(users);
     }
 
     @Override
     public void synchronizeDrawables(List<IDrawable> drawables) throws RemoteException {
-        gui.syncDrawables(drawables);
+        gui.updateDrawables(drawables);
     }
 
     @Override
     public void sendChatMessage(String message) throws RemoteException {
         gui.addChatMessage(message);
+    }
+
+    private void displayAndExitApplication(String message) {
+        JOptionPane.showMessageDialog(null, message);
+        System.exit(0);
     }
 }
