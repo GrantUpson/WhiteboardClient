@@ -218,6 +218,8 @@ public class GUI extends JFrame implements Runnable {
     private void exitApplication() throws RemoteException {
         if(connectionAccepted) {
             server.disconnect(client);
+        } else {
+            server.terminateRequest(client);
         }
         System.exit(0);
     }
