@@ -15,7 +15,7 @@ public class Launcher {
     private static final String INCORRECT_ARGUMENTS_RESPONSE =
             "Incorrect number of arguments. Usage: java -jar WhiteboardClient.jar <hostname> <registry-hostname> <registry-port> <username>";
 
-    public static void main(String[] args) throws NotBoundException, RemoteException, MalformedURLException, InterruptedException {
+    public static void main(String[] args) {
         //Skins the GUI to a dark theme.
         FlatDarkLaf.setup();
 

@@ -21,8 +21,9 @@ public class Client extends UnicastRemoteObject implements IClientCallback, Seri
         this.username = username;
         EventQueue.invokeLater(gui = new GUI(server, this));
 
-        if(!server.register(this)) {
-            displayAndExitApplication(USERNAME_ALREADY_EXISTS_MESSAGE);
+        //Will return false if a user with the clients' username already exists on the server.
+        if(!server.connect(this)) {
+            onForcedDisconnect(USERNAME_ALREADY_EXISTS_MESSAGE);
         }
     }
 
@@ -32,21 +33,11 @@ public class Client extends UnicastRemoteObject implements IClientCallback, Seri
     }
 
     @Override
-    public void onKick(String message) throws RemoteException {
-        displayAndExitApplication(message);
-    }
-
-    @Override
     public String getUsername() throws RemoteException {
         return username;
     }
 
-    @Override
-    public void onServerShutdown(String message) throws RemoteException {
-        displayAndExitApplication(message);
-    }
-
-    @Override
+    @Override //Called when the server accepts the users request to join the whiteboard.
     public void onConnectionAccepted() throws RemoteException {
         gui.enableServerCommunication();
     }
@@ -66,8 +57,13 @@ public class Client extends UnicastRemoteObject implements IClientCallback, Seri
         gui.addChatMessage(message);
     }
 
-    private void displayAndExitApplication(String message) {
-        JOptionPane.showMessageDialog(null, message);
-        System.exit(0);
+
+    @Override //Called when the server shuts down or kicks the user. Goes in new thread, so it doesn't block the server.
+    public void onForcedDisconnect(String message) throws RemoteException {
+        new Thread(() -> {
+            JOptionPane.showMessageDialog(null, message);
+            System.exit(0);
+        }) {
+        }.start();
     }
 }

@@ -4,6 +4,7 @@
  */
 
 import javax.swing.*;
+import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -32,9 +33,10 @@ public class ClientConnection {
             IWhiteboardServer server = (IWhiteboardServer) registry.lookup("Whiteboard");
             IClientCallback client = new Client(username, server);
         } catch(RemoteException | NotBoundException e) {
-            JOptionPane.showMessageDialog(null, CONNECTION_ERROR);
-            System.exit(0);
+            EventQueue.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null, CONNECTION_ERROR);
+                System.exit(0);
+            });
         }
-
     }
 }

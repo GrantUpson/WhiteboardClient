@@ -17,6 +17,12 @@ import java.util.List;
 
 public class GUI extends JFrame implements Runnable {
     private static final String EMPTY_STRING_MESSAGE = "You cannot send an empty chat message.";
+    private static final String PENDING_APPROVAL_MESSAGE = "Connection pending approval..";
+    private static final String RECTANGLE_SELECTOR = "Rectangle";
+    private static final String CIRCLE_SELECTOR = "Circle";
+    private static final String TRIANGLE_SELECTOR = "Triangle";
+    private static final String LINE_SELECTOR = "Line";
+    private static final String TEXT_SELECTOR = "Text";
     private static final int SHAPE_OFFSET = 35;
 
     private Map<String, Color> colours;
@@ -46,56 +52,8 @@ public class GUI extends JFrame implements Runnable {
         connectionAccepted = false;
 
         initializeColourSelector();
-        createShapeSelector();
-
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                try {
-                    if(shapeSelector.getSelectedItem() == "Text") {
-                        server.sendDrawable(new Drawable(null, colours.get((String)colourSelector.getSelectedItem()),
-                                new WhiteboardText(textToDraw.getText(), e.getX(), e.getY())));
-                    } else {
-                        server.sendDrawable(new Drawable(getSelectedShape(e.getX() - SHAPE_OFFSET,
-                                e.getY() - SHAPE_OFFSET), colours.get((String)colourSelector.getSelectedItem()), null));
-                    }
-                } catch(RemoteException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        disconnectButton.addActionListener(e -> {
-            try {
-                exitApplication();
-            } catch(RemoteException ex) {
-                ex.printStackTrace();
-            }
-        });
-
-        sendButton.addActionListener(e -> {
-            if(!sendMessageField.getText().trim().equalsIgnoreCase("")) {
-                try {
-                    server.sendChatMessage(client, sendMessageField.getText());
-                    sendMessageField.setText("");
-                } catch(RemoteException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, EMPTY_STRING_MESSAGE);
-            }
-        });
-
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                try {
-                    exitApplication();
-                } catch(RemoteException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        initializeShapeSelector();
+        initializeListeners();
 
         disableServerCommunication();
         whiteboardContainer.add(canvas);
@@ -110,6 +68,61 @@ public class GUI extends JFrame implements Runnable {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         pack();
         setVisible(true);
+    }
+
+    private void initializeListeners() {
+        EventQueue.invokeLater(() -> canvas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                try {
+                    if(connectionAccepted) {
+                        if(shapeSelector.getSelectedItem() == TEXT_SELECTOR) {
+                            server.sendDrawable(new Drawable(null, colours.get((String)colourSelector.getSelectedItem()),
+                                    new WhiteboardText(textToDraw.getText(), e.getX(), e.getY())));
+                        } else {
+                            server.sendDrawable(new Drawable(getSelectedShape(e.getX() - SHAPE_OFFSET,
+                                    e.getY() - SHAPE_OFFSET), colours.get((String)colourSelector.getSelectedItem()), null));
+                        }
+                    }
+                } catch(RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }));
+
+        EventQueue.invokeLater(() -> disconnectButton.addActionListener(e -> {
+            try {
+                exitApplication();
+            } catch(RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }));
+
+        EventQueue.invokeLater(() -> sendButton.addActionListener(e -> {
+            if(!sendMessageField.getText().trim().equalsIgnoreCase("")) {
+                try {
+                    server.sendChatMessage(client, sendMessageField.getText());
+                    sendMessageField.setText("");
+                } catch(RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                //New thread so server messages aren't blocked.
+                new Thread(() -> JOptionPane.showMessageDialog(null, EMPTY_STRING_MESSAGE)) {
+                }.start();
+            }
+        }));
+
+        EventQueue.invokeLater(() -> addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    exitApplication();
+                } catch(RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }));
     }
 
     public void addDrawableFromServer(IDrawable drawable) {
@@ -174,20 +187,20 @@ public class GUI extends JFrame implements Runnable {
         colourSelector.addItem("Yellow");
     }
 
-    private void createShapeSelector() {
-        shapeSelector.addItem("Rectangle");
-        shapeSelector.addItem("Triangle");
-        shapeSelector.addItem("Circle");
-        shapeSelector.addItem("Line");
-        shapeSelector.addItem("Text");
+    private void initializeShapeSelector() {
+        shapeSelector.addItem(RECTANGLE_SELECTOR);
+        shapeSelector.addItem(TRIANGLE_SELECTOR);
+        shapeSelector.addItem(CIRCLE_SELECTOR);
+        shapeSelector.addItem(LINE_SELECTOR);
+        shapeSelector.addItem(TEXT_SELECTOR);
     }
 
     private Shape getSelectedShape(int x, int y) {
         return switch((String) Objects.requireNonNull(shapeSelector.getSelectedItem())) {
-            case "Rectangle" -> new Rectangle(x, y, 100, 50);
-            case "Circle" -> new Ellipse2D.Double(x, y, 75, 75);
-            case "Triangle" -> new Triangle(x, y, 75, 75);
-            case "Line" -> new Rectangle(x, y, 200, 4);
+            case RECTANGLE_SELECTOR -> new Rectangle(x, y, 100, 50);
+            case CIRCLE_SELECTOR -> new Ellipse2D.Double(x, y, 75, 75);
+            case TRIANGLE_SELECTOR -> new Triangle(x, y, 75, 75);
+            case LINE_SELECTOR -> new Rectangle(x, y, 200, 4);
             default -> null;
         };
     }
@@ -195,7 +208,7 @@ public class GUI extends JFrame implements Runnable {
     private void disableServerCommunication() {
         sendMessageField.setEnabled(false);
         sendButton.setEnabled(false);
-        chatTextArea.setText("Connection pending approval..");
+        chatTextArea.setText(PENDING_APPROVAL_MESSAGE);
         shapeSelector.setEnabled(false);
         colourSelector.setEnabled(false);
         textToDraw.setEnabled(false);
@@ -203,7 +216,7 @@ public class GUI extends JFrame implements Runnable {
 
     private void exitApplication() throws RemoteException {
         if(connectionAccepted) {
-            server.unregister(client);
+            server.disconnect(client);
         }
         System.exit(0);
     }
