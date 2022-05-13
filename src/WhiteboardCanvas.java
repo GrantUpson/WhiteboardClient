@@ -23,7 +23,7 @@ public class WhiteboardCanvas extends JPanel {
     }
 
     @Override
-    public void paintComponent(Graphics g) { //TODO SYNCHRONIZED?
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D renderer = (Graphics2D)g;
 

@@ -19,7 +19,7 @@ public class Launcher {
         if(args.length != NUM_ARGUMENTS) {
             JOptionPane.showMessageDialog(null, INCORRECT_ARGUMENTS_RESPONSE);
         } else {
-            ClientConnection client = new ClientConnection(args[0], Integer.parseInt(args[1]), args[3]);
+            ClientConnection client = new ClientConnection(args[0], Integer.parseInt(args[1]), args[2]);
             client.connect();
         }
     }
