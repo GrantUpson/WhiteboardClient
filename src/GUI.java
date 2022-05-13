@@ -16,6 +16,7 @@ import java.util.List;
 
 
 public class GUI extends JFrame implements Runnable {
+    private static final String CLIENT_TITLE = "Whiteboard Client";
     private static final String EMPTY_STRING_MESSAGE = "You cannot send an empty chat message.";
     private static final String PENDING_APPROVAL_MESSAGE = "Connection pending approval..";
     private static final String RECTANGLE_SELECTOR = "Rectangle";
@@ -61,7 +62,7 @@ public class GUI extends JFrame implements Runnable {
 
     @Override
     public void run() {
-        setTitle("Whiteboard");
+        setTitle(CLIENT_TITLE);
         setContentPane(guiPanel);
         setLocationRelativeTo(null);
         setResizable(false);
